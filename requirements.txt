@@ -1,0 +1,23 @@
+# deployment
+aiohttp==3.11.12
+asyncpg==0.30.0
+Authlib==1.4.1
+fastapi==0.115.8
+google-auth==2.38.0
+gunicorn==23.0.0
+httpx==0.28.1
+itsdangerous==2.2.0
+loguru==0.7.3
+pydantic-settings==2.7.1
+PyJWT==2.10.1
+python-dotenv==1.0.1
+SQLAlchemy==2.0.37
+uvicorn==0.34.0
+
+# development
+alembic==1.14.1
+psycopg2-binary==2.9.10
+pytest==8.3.4
+pytest-asyncio==0.25.3
+requests==2.32.3
+ruff==0.9.4

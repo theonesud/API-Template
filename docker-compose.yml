@@ -1,0 +1,16 @@
+services:
+    API-Template:
+        build: .
+        container_name: API-Template
+        ports:
+            - '8000:8000'
+        volumes:
+            - ./logs:/app/logs
+
+    # api-template-frontend:
+    #     build: ../api-template-frontend/.
+    #     container_name: api-template-frontend
+    #     ports:
+    #         - '3000:3000'
+    #     depends_on:
+    #         - api-template

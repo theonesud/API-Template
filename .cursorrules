@@ -1,0 +1,33 @@
+## Environment Variables
+
+-   Stored in .env file in this format BASE_URL=http://localhost:8000
+-   Mapped to python in config.py file as BASE_URL=os.getenv("BASE_URL")
+
+## Database
+
+-   Keep the /reset_db endpoint commented out in main.py
+-   While editing tables in db.py, make sure to add all constraints, relationships, indexes, etc.
+-   Never edit the get_session function in db.py
+
+## API
+
+-   Create ResourceRequest and UpdateResourceRequest pydantic models for each GET and POST request in model/ql.py
+-   Always include user=Depends(get_user_from_token) in function parameters. It enables authentication on the endpoint.
+-   Always enclose the endpoint code in try except block. During the exception, log it, send it to slack and return a HTTPException.
+-   For successful response, return a json with message and data.
+-   Add logs throughout the code to track the journey of the user. Use user['name'] to give the log identity.
+-   For DB requests always enclose just the query in a block like this. This enables auto-rollback on error:
+
+```python
+async with get_session() as session:
+    session.add(new_product)
+```
+
+## Testing
+
+-   For each endpoint, create a test in tests/test_<resource>.py
+-   Use the BASE_URL variable to make requests.
+-   Use the access_token fixture to authenticate the requests.
+-   Use the response to assert the expected results.
+-   Use the pytest.mark.asyncio decorator to run the tests asynchronously.
+-   Use requests library to make the requests.
