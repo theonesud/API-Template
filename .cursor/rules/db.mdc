@@ -1,0 +1,59 @@
+---
+description: How to add / edit tables in the db.
+globs: model/db.py
+alwaysApply: false
+---
+The db file will always be at /model/db.py
+
+Always use this exact structure for a table:
+```python
+NotNullColumn = partial(Column, nullable=False)
+class Company(Base):
+    __tablename__ = "companies"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = NotNullColumn(String(255))
+    about = NotNullColumn(Text)
+    created_at = NotNullColumn(DateTime)
+    updated_at = Column(DateTime)
+```
+Add constraints like unique=True, foreign keys, etc
+Add indexes for improving performance.
+
+Always use this exact code for creating the engine, session and context manager:
+```python
+from config import settings
+engine = create_async_engine(
+    settings.ASYNCPG_URL,
+    future=True,
+    echo=True,
+    pool_size=20,
+    max_overflow=10,
+    connect_args={"server_settings": {"statement_timeout": "10000"}},
+)
+async_session = sessionmaker(
+    engine,
+    expire_on_commit=False,
+    class_=AsyncSession,
+    autocommit=False,
+    autoflush=False,
+)
+
+
+@asynccontextmanager
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    async with async_session() as session:
+        async with session.begin():
+            try:
+                yield session
+                await session.commit()
+            except DBAPIError as ex:
+                await session.rollback()
+                app_logger.debug("Session timeout...")
+                raise ex
+            except SQLAlchemyError as ex:
+                await session.rollback()
+                app_logger.debug("Session rollback...")
+                raise ex
+            finally:
+                await session.close()
+```

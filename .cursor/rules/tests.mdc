@@ -1,0 +1,20 @@
+---
+description: How to create / edit test cases.
+globs: tests/*.{py}
+alwaysApply: false
+---
+All tests are created in the /tests folder. An example is [test_auth.py](mdc:tests/test_auth.py).
+
+Always use this exact structure for a test:
+```python
+from config import settings
+@pytest.mark.asyncio
+async def test_meera_root(access_token):
+    response = requests.post(  # Always use the requests package
+        f"{settings.BASE_URL}/meera",  # Always use settings.BASE_URL
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={"character_id": "0423f038-2a8b-49f3-b6f3-ab281c85d05b"},
+    )
+    assert response.status_code == 200  # Only check status code
+    # print(response.json())  # Optionally print the response
+```

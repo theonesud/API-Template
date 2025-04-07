@@ -1,0 +1,13 @@
+---
+description: How to use environment variables
+globs: 
+alwaysApply: true
+---
+All environment variables are stored in the hidden /.env file. They are parsed and checked in [config.py](mdc:config.py).
+
+Always use this exact structure to use environment variables:
+```python
+from config import settings
+print(settings.ENV_VAR_NAME)
+```
+Never use something like `VARIABLE = os.getenv("VARIABLE")`.

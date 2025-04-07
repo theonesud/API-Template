@@ -1,0 +1,48 @@
+---
+description: How to create / edit an api.
+globs: api/*.{py}
+alwaysApply: false
+---
+Apis are created in the /api folder. An example is [auth.py](mdc:api/auth.py).
+
+The api file will contain a router with the resource name as the prefix of the url (`router = APIRouter(prefix="/resource")`). This router needs to be imported and configured in [main.py](mdc:main.py) (`app.include_router(resource.router)`)
+
+All apis need to be protected. Do this by adding `user=Depends(get_user_from_token)` in function params.
+If the api is POST/PUT and takes in any body params, you need to create a Pydantic model in [ql.py](mdc:model/ql.py) and use it in the params of the api function. (`async def create_resource(resource_request: ResourceRequest, user=Depends(get_user_from_token)):`)
+
+For adding data to the db, always use this exact structure:
+```python
+from sqlalchemy import insert
+from model.db import get_session, Tablename
+insert_query = insert(Tablename).values(
+    {"col1": val1, "col2": val2}
+)
+async with get_session() as s:
+    await s.execute(insert_query)
+```
+
+For fetching data from the db, always use this exact structure:
+```python
+from sqlalchemy import select
+from model.db import get_session, Character
+async with get_session() as session:
+    query = select(Character).filter(
+        Character.character_id == character_id
+    )
+    character = (await session.execute(query)).scalars().first()
+```
+
+Always try to minimize the number of db calls and the amount of code within `async with get_session() as session:`. Keep unnecessary code before/after the session. This will make sure our db session opens for the least amount of time. Do not use `session.commit()` in the api code. It is already present in the session context manager.
+
+Log every user action using `app_logger.info(f"User {user['name']}...")`
+
+Add a global try except block on every endpoint. In the except block, always use this exact code:
+```python
+from config import app_logger
+from core.slack import send_error_to_slack
+error_msg = f"Error: {str(e)}"
+app_logger.exception(error_msg)
+await send_error_to_slack(error_msg)
+return HTTPException(status_code=500, detail="Internal server error")
+```
+For a successful response, send a json with a message key and optional data key (`{"message": "Task Done Successfully", "data": {}}`).
