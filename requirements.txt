@@ -1,5 +1,5 @@
 # deployment
-aiohttp==3.11.12
+aiohttp==3.12.14
 asyncpg==0.30.0
 Authlib==1.4.1
 fastapi==0.115.8
